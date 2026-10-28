@@ -16,7 +16,7 @@ for line in (evidence / 'macros.txt').read_text().splitlines():
     if line.startswith('#define '):
         parts = line[8:].split(maxsplit=1)
         macros[parts[0]] = parts[1] if len(parts) > 1 else ''
-for name in ['USE_CONFIG', 'RP2350A', 'USE_ACC', 'USE_GYRO', 'USE_SPI_GYRO',
+for name in ['USE_CONFIG', 'USE_CONFIG_SOURCE', 'TARGET_VALIDATECONFIG', 'RP2350A', 'USE_ACC', 'USE_GYRO', 'USE_SPI_GYRO',
              'USE_ACC_SPI_MPU6500', 'USE_GYRO_SPI_MPU6500', 'USE_GYRO_EXTI']:
     assert name in macros, name
 assert 'RP2350B' not in macros
@@ -29,7 +29,7 @@ for name, value in {
 }.items():
     assert macros.get(name) == value, (name, macros.get(name), value)
 symbols = (evidence / 'symbols.txt').read_text()
-for name in ['mpu6500SpiAccInit', 'mpu6500SpiGyroInit']:
+for name in ['mpu6500SpiAccInit', 'mpu6500SpiGyroInit', 'targetValidateConfiguration']:
     assert name in symbols, f'Linked driver symbol missing: {name}'
 files = list(Path('obj').glob('*PICO2_MPU6500*.uf2'))
 assert len(files) == 1, files

@@ -40,6 +40,9 @@ jobs:
           git submodule update --init -- src/config lib/modules/dronecan/libcanard
           make SDK=pico_sdk platform-sdk-hydrate
 
+      - name: Test retained gyro bus correction
+        run: python3 board/ci/pico2/test_config.py
+
       - name: Cache release toolchain
         uses: actions/cache@v4
         id: tools
@@ -69,6 +72,7 @@ jobs:
           make -f Makefile -f "$GITHUB_WORKSPACE/board/ci/pico2/verify.mk" CONFIG=PICO2_MPU6500 pico2-evidence
           python3 "$GITHUB_WORKSPACE/board/ci/pico2/verify.py"
           cp "$GITHUB_WORKSPACE/board/custom-config/configs/PICO2_MPU6500/config.h" evidence/config.h
+          cp "$GITHUB_WORKSPACE/board/custom-config/configs/PICO2_MPU6500/config.c" evidence/config.c
           git submodule status > evidence/submodules.txt
           sha256sum obj/*PICO2_MPU6500*.uf2 > evidence/SHA256SUMS
           cat evidence/verification.json >> "$GITHUB_STEP_SUMMARY"

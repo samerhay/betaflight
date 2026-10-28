@@ -23,6 +23,11 @@ not an independent clone of betaflight/config.
 
 This is RP2350A with the release's native 4 MB flash setting, not HELLBENDER
 RP2350B. Both `USE_ACC_SPI_MPU6500` and `USE_GYRO_SPI_MPU6500` are enabled.
+Betaflight's `gyro_1_spibus=1` selects hardware SPI0. The board default already
+uses 1. A board validation hook also corrects retained settings when the gyro
+bus type is SPI but its bus number is 0 (disabled). It runs when settings are
+loaded or saved, before sensor detection, without resetting other settings.
+Valid nonzero SPI selections and non-SPI gyro configurations are preserved.
 LED is GP25. Sensor alignment defaults to CW0 and must match physical mounting.
 Motor and receiver wiring is intentionally unassigned; this is a sensor bring-up
 image, not a flight-tested complete FC configuration.

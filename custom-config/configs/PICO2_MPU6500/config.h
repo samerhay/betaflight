@@ -6,6 +6,9 @@
 #define MANUFACTURER_ID RASP
 #define LED0_PIN PA25
 
+// Correct a retained disabled SPI bus before gyro detection.
+#define TARGET_VALIDATECONFIG
+
 #define USE_ACC
 #define USE_GYRO
 #define USE_ACC_SPI_MPU6500
