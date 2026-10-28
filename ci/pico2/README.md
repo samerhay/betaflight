@@ -28,6 +28,22 @@ uses 1. A board validation hook also corrects retained settings when the gyro
 bus type is SPI but its bus number is 0 (disabled). It runs when settings are
 loaded or saved, before sensor detection, without resetting other settings.
 Valid nonzero SPI selections and non-SPI gyro configurations are preserved.
+UART pin assignments (Pico GPIO numbers):
+
+| Port | TX | RX |
+| --- | --- | --- |
+| Hardware UART0 | GP0 | GP1 |
+| Hardware UART1 | GP4 | GP5 |
+| PIO UART0 | GP6 | GP7 |
+| PIO UART1 | GP8 | GP9 |
+
+All four are enabled alongside USB VCP. The board validation hook also fills
+completely unassigned UART pin pairs from older saved configurations, so a
+settings reset is not needed. Existing remaps and TX-only/RX-only pairs are
+preserved. Clearing both pins restores the board defaults on the next settings
+validation. Port functions remain disabled until selected in Configurator.
+Connect each peripheral TX to the corresponding Pico RX and vice versa.
+
 LED is GP25. Sensor alignment defaults to CW0 and must match physical mounting.
 Motor and receiver wiring is intentionally unassigned; this is a sensor bring-up
 image, not a flight-tested complete FC configuration.

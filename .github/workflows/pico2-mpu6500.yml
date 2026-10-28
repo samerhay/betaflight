@@ -40,7 +40,7 @@ jobs:
           git submodule update --init -- src/config lib/modules/dronecan/libcanard
           make SDK=pico_sdk platform-sdk-hydrate
 
-      - name: Test retained gyro bus correction
+      - name: Test retained gyro and UART configuration corrections
         run: python3 board/ci/pico2/test_config.py
 
       - name: Cache release toolchain

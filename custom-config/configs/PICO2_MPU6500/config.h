@@ -6,6 +6,16 @@
 #define MANUFACTURER_ID RASP
 #define LED0_PIN PA25
 
+// Two hardware UARTs and two full-duplex PIO UARTs (TX / RX).
+#define UART0_TX_PIN PA0
+#define UART0_RX_PIN PA1
+#define UART1_TX_PIN PA4
+#define UART1_RX_PIN PA5
+#define PIOUART0_TX_PIN PA6
+#define PIOUART0_RX_PIN PA7
+#define PIOUART1_TX_PIN PA8
+#define PIOUART1_RX_PIN PA9
+
 // Correct a retained disabled SPI bus before gyro detection.
 #define TARGET_VALIDATECONFIG
 

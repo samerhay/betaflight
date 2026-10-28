@@ -17,7 +17,8 @@ for line in (evidence / 'macros.txt').read_text().splitlines():
         parts = line[8:].split(maxsplit=1)
         macros[parts[0]] = parts[1] if len(parts) > 1 else ''
 for name in ['USE_CONFIG', 'USE_CONFIG_SOURCE', 'TARGET_VALIDATECONFIG', 'RP2350A', 'USE_ACC', 'USE_GYRO', 'USE_SPI_GYRO',
-             'USE_ACC_SPI_MPU6500', 'USE_GYRO_SPI_MPU6500', 'USE_GYRO_EXTI']:
+             'USE_ACC_SPI_MPU6500', 'USE_GYRO_SPI_MPU6500', 'USE_GYRO_EXTI',
+             'USE_UART0', 'USE_UART1', 'USE_PIOUART0', 'USE_PIOUART1']:
     assert name in macros, name
 assert 'RP2350B' not in macros
 for name, value in {
@@ -26,6 +27,10 @@ for name, value in {
     'SPI0_SCK_PIN': 'PA18', 'SPI0_SDI_PIN': 'PA16', 'SPI0_SDO_PIN': 'PA19',
     'GYRO_1_SPI_INSTANCE': 'SPI0', 'GYRO_1_CS_PIN': 'PA17',
     'GYRO_1_EXTI_PIN': 'PA20', 'GYRO_1_ALIGN': 'CW0_DEG',
+    'UART0_TX_PIN': 'PA0', 'UART0_RX_PIN': 'PA1',
+    'UART1_TX_PIN': 'PA4', 'UART1_RX_PIN': 'PA5',
+    'PIOUART0_TX_PIN': 'PA6', 'PIOUART0_RX_PIN': 'PA7',
+    'PIOUART1_TX_PIN': 'PA8', 'PIOUART1_RX_PIN': 'PA9',
 }.items():
     assert macros.get(name) == value, (name, macros.get(name), value)
 symbols = (evidence / 'symbols.txt').read_text()
@@ -56,6 +61,6 @@ assert sorted(number for number, _ in blocks) == list(range(len(blocks)))
 report = {'build': build, 'uf2': uf2.name, 'bytes': len(data),
           'blocks': len(blocks), 'families': [hex(f) for f in sorted(families)],
           'sha256': hashlib.sha256(data).hexdigest(),
-          'checks': 'release, custom config, RP2350A, 4MB flash, SPI0 pins, ACC/GYRO drivers, UF2 structure'}
+          'checks': 'release, custom config, RP2350A, 4MB flash, SPI0 pins, ACC/GYRO drivers, two hardware and two PIO UARTs, UF2 structure'}
 (evidence / 'verification.json').write_text(json.dumps(report, indent=2) + '\n')
 print(json.dumps(report, indent=2))
