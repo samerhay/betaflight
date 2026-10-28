@@ -1,0 +1,94 @@
+name: Pico 2 MPU6500 - Betaflight 2026.6.1
+
+on:
+  push:
+    branches: [pico2-mpu6500]
+    paths:
+      - '.github/workflows/pico2-mpu6500.yml'
+      - 'custom-config/**'
+      - 'ci/pico2/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout board configuration and build checks
+        uses: actions/checkout@v5
+        with:
+          path: board
+
+      - name: Checkout exact 2026.6.1 release from fork
+        uses: actions/checkout@v5
+        with:
+          repository: samerhay/betaflight
+          ref: 6dbc4218fd6bc33bf16ea32c670304d4f89321d5
+          path: firmware
+
+      - name: Install build prerequisites
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y build-essential cmake libusb-1.0-0-dev python3
+
+      - name: Hydrate pinned config and Pico SDK submodules
+        working-directory: firmware
+        run: |
+          git submodule update --init -- src/config lib/modules/dronecan/libcanard
+          make SDK=pico_sdk platform-sdk-hydrate
+
+      - name: Cache release toolchain
+        uses: actions/cache@v4
+        id: tools
+        with:
+          path: firmware/tools
+          key: pico2-ubuntu24-release-6dbc421-tools-v1
+
+      - name: Install release toolchain and picotool
+        if: steps.tools.outputs.cache-hit != 'true'
+        working-directory: firmware
+        run: make SDK=pico_sdk platform-tools-install
+
+      - name: Build custom RP2350A UF2
+        working-directory: firmware
+        env:
+          BETAFLIGHT_CONFIG: ${{ github.workspace }}/board/custom-config
+        run: |
+          set -o pipefail
+          mkdir -p evidence
+          make -j2 CONFIG=PICO2_MPU6500 uf2 2>&1 | tee evidence/build.log
+
+      - name: Verify compiled board, drivers, release and UF2
+        working-directory: firmware
+        env:
+          BETAFLIGHT_CONFIG: ${{ github.workspace }}/board/custom-config
+        run: |
+          make -f Makefile -f "$GITHUB_WORKSPACE/board/ci/pico2/verify.mk" CONFIG=PICO2_MPU6500 pico2-evidence
+          python3 "$GITHUB_WORKSPACE/board/ci/pico2/verify.py"
+          cp "$GITHUB_WORKSPACE/board/custom-config/configs/PICO2_MPU6500/config.h" evidence/config.h
+          git submodule status > evidence/submodules.txt
+          sha256sum obj/*PICO2_MPU6500*.uf2 > evidence/SHA256SUMS
+          cat evidence/verification.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload verified firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: betaflight-2026.6.1-PICO2_MPU6500-RP2350A
+          path: |
+            firmware/obj/*PICO2_MPU6500*.uf2
+            firmware/obj/*PICO2_MPU6500*.elf
+            firmware/obj/*PICO2_MPU6500*.map
+            firmware/evidence/
+          if-no-files-found: error
+          retention-days: 60
+
+      - name: Upload failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pico2-build-diagnostics
+          path: firmware/evidence/
+          if-no-files-found: ignore
