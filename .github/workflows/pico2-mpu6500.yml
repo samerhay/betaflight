@@ -79,8 +79,8 @@ jobs:
           name: betaflight-2026.6.1-PICO2_MPU6500-RP2350A
           path: |
             firmware/obj/*PICO2_MPU6500*.uf2
-            firmware/obj/*PICO2_MPU6500*.elf
-            firmware/obj/*PICO2_MPU6500*.map
+            firmware/obj/main/*PICO2_MPU6500*.elf
+            firmware/obj/main/*PICO2_MPU6500*.map
             firmware/evidence/
           if-no-files-found: error
           retention-days: 60
